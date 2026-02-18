@@ -2,32 +2,47 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>SweetShop POS - نظام البيع</title>
+    <title>SweetShop POS - سلة المشتريات</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; text-align: right; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         h2 { color: #2c3e50; text-align: center; }
-        input { width: 100%; padding: 15px; font-size: 1.2rem; border: 2px solid #3498db; border-radius: 5px; box-sizing: border-box; }
-        .product-card { margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; display: none; background: #f9f9f9; }
-        .price { font-size: 1.5rem; color: #27ae60; font-weight: bold; }
+        input { width: 100%; padding: 15px; font-size: 1.2rem; border: 2px solid #3498db; border-radius: 5px; box-sizing: border-box; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+        th { background-color: #3498db; color: white; }
+        .total-section { margin-top: 20px; text-align: left; font-size: 1.5rem; font-weight: bold; color: #e67e22; }
+        .btn-print { background: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; float: right; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>محل لوازم الحلويات - باتنة</h2>
-    <input type="text" id="barcodeScanner" placeholder="امسح الباركود هنا..." autofocus>
+    <h2>واجهة البيع - محل باتنة</h2>
+    <input type="text" id="barcodeScanner" placeholder="امسح الباركود لإضافة سلعة..." autofocus>
 
-    <div id="result" class="product-card">
-        <h3 id="pNameAr"></h3>
-        <h4 id="pNameFr" style="color: #7f8c8d;"></h4>
-        <p class="price" id="pPrice"></p>
-        <p id="pStock"></p>
+    <table>
+        <thead>
+            <tr>
+                <th>السلعة</th>
+                <th>الكمية</th>
+                <th>السعر</th>
+                <th>الإجمالي</th>
+            </tr>
+        </thead>
+        <tbody id="cartTable">
+            </tbody>
+    </table>
+
+    <div class="total-section">
+        المجموع الكلي: <span id="grandTotal">0</span> دج
     </div>
+    <button class="btn-print" onclick="window.print()">طباعة الفاتورة</button>
 </div>
 
 <script>
-    // هذه الوظيفة تبحث عن المنتج داخل ملف JSON الذي أنشأته
+    let cart = [];
+
     document.getElementById('barcodeScanner').addEventListener('change', function(e) {
         const barcode = e.target.value;
         
@@ -35,21 +50,46 @@
             .then(response => response.json())
             .then(products => {
                 const product = products.find(p => p.id === barcode);
-                const resultDiv = document.getElementById('result');
                 
                 if (product) {
-                    document.getElementById('pNameAr').innerText = product.name_ar;
-                    document.getElementById('pNameFr').innerText = product.name_fr;
-                    document.getElementById('pPrice').innerText = "السعر: " + product.sell_price + " دج";
-                    document.getElementById('pStock').innerText = "المخزون المتوفر: " + product.stock;
-                    resultDiv.style.display = 'block';
+                    addToCart(product);
                 } else {
-                    alert("عذراً! هذا المنتج غير مسجل.");
-                    resultDiv.style.display = 'none';
+                    alert("المنتج غير موجود!");
                 }
-                e.target.value = ''; // تفريغ الخانة للمسح القادم
+                e.target.value = ''; 
             });
     });
+
+    function addToCart(product) {
+        const existingProduct = cart.find(item => item.id === product.id);
+        
+        if (existingProduct) {
+            existingProduct.quantity += 1;
+        } else {
+            cart.push({...product, quantity: 1});
+        }
+        updateTable();
+    }
+
+    function updateTable() {
+        const tableBody = document.getElementById('cartTable');
+        tableBody.innerHTML = '';
+        let total = 0;
+
+        cart.forEach(item => {
+            const itemTotal = item.sell_price * item.quantity;
+            total += itemTotal;
+            tableBody.innerHTML += `
+                <tr>
+                    <td>${item.name_ar}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.sell_price}</td>
+                    <td>${itemTotal} دج</td>
+                </tr>
+            `;
+        });
+        document.getElementById('grandTotal').innerText = total;
+    }
 </script>
 
 </body>
