@@ -2,10 +2,55 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>SweetShop POS</title>
+    <title>SweetShop POS - نظام البيع</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { color: #2c3e50; text-align: center; }
+        input { width: 100%; padding: 15px; font-size: 1.2rem; border: 2px solid #3498db; border-radius: 5px; box-sizing: border-box; }
+        .product-card { margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; display: none; background: #f9f9f9; }
+        .price { font-size: 1.5rem; color: #27ae60; font-weight: bold; }
+    </style>
 </head>
 <body>
-    <h1>نظام إدارة محل الحلويات - باتنة</h1>
-    <p>هذه هي واجهة البداية...</p>
+
+<div class="container">
+    <h2>محل لوازم الحلويات - باتنة</h2>
+    <input type="text" id="barcodeScanner" placeholder="امسح الباركود هنا..." autofocus>
+
+    <div id="result" class="product-card">
+        <h3 id="pNameAr"></h3>
+        <h4 id="pNameFr" style="color: #7f8c8d;"></h4>
+        <p class="price" id="pPrice"></p>
+        <p id="pStock"></p>
+    </div>
+</div>
+
+<script>
+    // هذه الوظيفة تبحث عن المنتج داخل ملف JSON الذي أنشأته
+    document.getElementById('barcodeScanner').addEventListener('change', function(e) {
+        const barcode = e.target.value;
+        
+        fetch('products.json')
+            .then(response => response.json())
+            .then(products => {
+                const product = products.find(p => p.id === barcode);
+                const resultDiv = document.getElementById('result');
+                
+                if (product) {
+                    document.getElementById('pNameAr').innerText = product.name_ar;
+                    document.getElementById('pNameFr').innerText = product.name_fr;
+                    document.getElementById('pPrice').innerText = "السعر: " + product.sell_price + " دج";
+                    document.getElementById('pStock').innerText = "المخزون المتوفر: " + product.stock;
+                    resultDiv.style.display = 'block';
+                } else {
+                    alert("عذراً! هذا المنتج غير مسجل.");
+                    resultDiv.style.display = 'none';
+                }
+                e.target.value = ''; // تفريغ الخانة للمسح القادم
+            });
+    });
+</script>
+
 </body>
 </html>
