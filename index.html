@@ -2,93 +2,75 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>SweetShop POS - سلة المشتريات</title>
+    <title>نظام مبيعات باتنة - إدارة السلع</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; text-align: right; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h2 { color: #2c3e50; text-align: center; }
-        input { width: 100%; padding: 15px; font-size: 1.2rem; border: 2px solid #3498db; border-radius: 5px; box-sizing: border-box; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
-        th { background-color: #3498db; color: white; }
-        .total-section { margin-top: 20px; text-align: left; font-size: 1.5rem; font-weight: bold; color: #e67e22; }
-        .btn-print { background: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; float: right; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .tab { display: flex; cursor: pointer; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+        .tab div { padding: 10px 20px; background: #eee; margin-left: 5px; border-radius: 5px 5px 0 0; }
+        .tab div.active { background: #3498db; color: white; }
+        .section { display: none; }
+        .section.active { display: block; }
+        input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; }
+        button { background: #27ae60; color: white; cursor: pointer; border: none; }
+        #codeOutput { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>واجهة البيع - محل باتنة</h2>
-    <input type="text" id="barcodeScanner" placeholder="امسح الباركود لإضافة سلعة..." autofocus>
-
-    <table>
-        <thead>
-            <tr>
-                <th>السلعة</th>
-                <th>الكمية</th>
-                <th>السعر</th>
-                <th>الإجمالي</th>
-            </tr>
-        </thead>
-        <tbody id="cartTable">
-            </tbody>
-    </table>
-
-    <div class="total-section">
-        المجموع الكلي: <span id="grandTotal">0</span> دج
+    <div class="tab">
+        <div id="tab1" class="active" onclick="switchTab(1)">واجهة البيع</div>
+        <div id="tab2" onclick="switchTab(2)">إضافة سلع جديدة</div>
     </div>
-    <button class="btn-print" onclick="window.print()">طباعة الفاتورة</button>
+
+    <div id="section1" class="section active">
+        <h2>نظام البيع</h2>
+        <input type="text" id="barcodeScanner" placeholder="امسح الباركود للبيع..." autofocus>
+        <div id="cartDisplay">قم بمسح السلع لتظهر هنا...</div>
+    </div>
+
+    <div id="section2" class="section">
+        <h2>إضافة سلعة لقاعدة البيانات</h2>
+        <p style="color: red;">* امسح باركود السلعة أولاً، ثم املأ البيانات.</p>
+        <input type="text" id="newBarcode" placeholder="امسح الباركود هنا...">
+        <input type="text" id="newNameAr" placeholder="اسم السلعة (عربي)">
+        <input type="text" id="newNameFr" placeholder="Nom du produit (Français)">
+        <input type="number" id="newBuyPrice" placeholder="سعر الشراء">
+        <input type="number" id="newSellPrice" placeholder="سعر البيع للزبون">
+        <input type="number" id="newStock" placeholder="الكمية المتوفرة حالياً">
+        <button onclick="generateCode()">توليد كود الإضافة</button>
+        
+        <div id="resultArea" style="display:none;">
+            <p>انسخ هذا الكود وضعه في ملف products.json:</p>
+            <div id="codeOutput"></div>
+        </div>
+    </div>
 </div>
 
 <script>
-    let cart = [];
-
-    document.getElementById('barcodeScanner').addEventListener('change', function(e) {
-        const barcode = e.target.value;
-        
-        fetch('products.json')
-            .then(response => response.json())
-            .then(products => {
-                const product = products.find(p => p.id === barcode);
-                
-                if (product) {
-                    addToCart(product);
-                } else {
-                    alert("المنتج غير موجود!");
-                }
-                e.target.value = ''; 
-            });
-    });
-
-    function addToCart(product) {
-        const existingProduct = cart.find(item => item.id === product.id);
-        
-        if (existingProduct) {
-            existingProduct.quantity += 1;
-        } else {
-            cart.push({...product, quantity: 1});
-        }
-        updateTable();
+    function switchTab(n) {
+        document.querySelectorAll('.tab div').forEach(d => d.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById('tab'+n).classList.add('active');
+        document.getElementById('section'+n).classList.add('active');
     }
 
-    function updateTable() {
-        const tableBody = document.getElementById('cartTable');
-        tableBody.innerHTML = '';
-        let total = 0;
-
-        cart.forEach(item => {
-            const itemTotal = item.sell_price * item.quantity;
-            total += itemTotal;
-            tableBody.innerHTML += `
-                <tr>
-                    <td>${item.name_ar}</td>
-                    <td>${item.quantity}</td>
-                    <td>${item.sell_price}</td>
-                    <td>${itemTotal} دج</td>
-                </tr>
-            `;
-        });
-        document.getElementById('grandTotal').innerText = total;
+    function generateCode() {
+        const item = {
+            "id": document.getElementById('newBarcode').value,
+            "name_ar": document.getElementById('newNameAr').value,
+            "name_fr": document.getElementById('newNameFr').value,
+            "buy_price": parseInt(document.getElementById('newBuyPrice').value),
+            "sell_price": parseInt(document.getElementById('newSellPrice').value),
+            "stock": parseInt(document.getElementById('newStock').value),
+            "min_limit": 5,
+            "expiry_date": "2026-12-30"
+        };
+        
+        const code = JSON.stringify(item, null, 2) + ",";
+        document.getElementById('codeOutput').innerText = code;
+        document.getElementById('resultArea').style.display = 'block';
     }
 </script>
 
