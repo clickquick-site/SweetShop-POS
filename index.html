@@ -3,311 +3,618 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUPER_POS Pro | النسخة المتكاملة</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>SweetShop POS | نظام الإدارة المتكامل</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --sidebar-bg: #1a252f; --accent: #3498db; --danger: #e74c3c; --success: #2ecc71; --warning: #f39c12; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: #f0f2f5; display: flex; height: 100vh; overflow: hidden; }
+        :root {
+            --bg-dark: #1e293b;
+            --bg-light: #f1f5f9;
+            --primary: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text-dark: #0f172a;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--bg-light); color: var(--text-dark); height: 100vh; overflow: hidden; display: flex; }
         
-        /* Sidebar */
-        .sidebar { width: 260px; background: var(--sidebar-bg); color: white; display: flex; flex-direction: column; flex-shrink: 0; }
-        .sidebar-brand { padding: 25px; text-align: center; font-size: 1.5rem; border-bottom: 1px solid #2c3e50; }
-        .nav-item { padding: 15px 25px; color: #bdc3c7; cursor: pointer; display: flex; align-items: center; transition: 0.3s; }
-        .nav-item:hover, .nav-item.active { background: #2c3e50; color: white; border-right: 4px solid var(--accent); }
-        .nav-item i { margin-left: 12px; width: 20px; }
-
-        /* Main Layout */
-        .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        header { background: white; height: 60px; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .page-sec { display: none; padding: 20px; height: 100%; overflow-y: auto; }
-        .active-sec { display: block; }
-
-        /* Forms & Cards */
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
-        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: 100%; box-sizing: border-box; }
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-primary { background: var(--accent); color: white; }
-
-        /* POS UI */
-        .pos-container { display: flex; gap: 20px; height: calc(100% - 100px); }
-        .products-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; align-content: start; }
-        .product-card { background: white; border-radius: 10px; text-align: center; padding: 10px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-        .product-card:hover { border-color: var(--accent); transform: translateY(-3px); }
-        .product-card img { width: 100%; height: 100px; object-fit: cover; border-radius: 6px; }
+        /* شاشة الدخول */
+        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 1000; display: flex; justify-content: center; align-items: center; }
+        .login-card { background: white; padding: 40px; border-radius: 16px; width: 350px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
         
-        /* Table styles */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: right; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; }
-        .expiring-soon { background: #fff3cd; color: #856404; }
+        /* القائمة الجانبية */
+        .sidebar { width: 260px; background: var(--bg-dark); color: white; display: flex; flex-direction: column; transition: 0.3s; }
+        .brand { padding: 25px; font-size: 1.4rem; font-weight: bold; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 10px; }
+        .nav-link { padding: 16px 20px; cursor: pointer; display: flex; align-items: center; gap: 12px; color: #cbd5e1; transition: 0.2s; }
+        .nav-link:hover, .nav-link.active { background: #334155; color: white; border-right: 4px solid var(--primary); }
+        
+        /* المحتوى الرئيسي */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .header { height: 60px; background: white; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .content-area { flex: 1; padding: 20px; overflow-y: auto; display: none; }
+        .content-area.active { display: block; }
+        
+        /* المكونات العامة */
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; color: white; transition: 0.2s; }
+        .btn-primary { background: var(--primary); }
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+        .grid-split { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; height: 100%; }
+        input, select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        
+        /* جداول */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: right; padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f8fafc; color: #64748b; }
+        
+        /* POS ومنتجات */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
+        .product-item { background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; cursor: pointer; transition: 0.2s; text-align: center; padding-bottom: 10px; }
+        .product-item:hover { transform: translateY(-3px); border-color: var(--primary); }
+        .product-img { width: 100%; height: 100px; object-fit: cover; background: #f1f5f9; }
+        .low-stock { border: 2px solid var(--warning); }
+        .expired { border: 2px solid var(--danger); position: relative; }
+        .expired::after { content: 'منتهي'; position: absolute; top:0; right:0; background: var(--danger); color: white; padding: 2px 6px; font-size: 0.7rem; }
 
-        /* Login Overlay */
-        #loginOverlay { position: fixed; inset: 0; background: var(--sidebar-bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        /* الفاتورة */
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; }
     </style>
 </head>
 <body>
 
-    <div id="loginOverlay">
-        <div class="card" style="width: 350px; text-align: center;">
-            <i class="fas fa-lock fa-3x" style="color: var(--accent); margin-bottom: 15px;"></i>
-            <h3>دخول النظام</h3>
-            <input type="text" id="loginUser" placeholder="اسم المستخدم" style="margin-bottom: 10px;">
-            <input type="password" id="loginPass" placeholder="كلمة المرور" style="margin-bottom: 15px;">
-            <button class="btn btn-primary" style="width: 100%;" onclick="attemptLogin()">دخول</button>
+    <div id="login-overlay">
+        <div class="login-card">
+            <i class="fas fa-store fa-3x" style="color: var(--primary); margin-bottom: 15px;"></i>
+            <h2 id="loginTitle">SweetShop POS</h2>
+            <input type="text" id="username" class="login-input" placeholder="اسم المستخدم (admin)">
+            <input type="password" id="password" class="login-input" placeholder="كلمة المرور (123)">
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="Auth.login()">تسجيل الدخول</button>
+            <p id="login-msg" style="color: var(--danger); margin-top: 10px; font-size: 0.9rem;"></p>
         </div>
     </div>
 
     <aside class="sidebar">
-        <div class="sidebar-brand"><i class="fas fa-store"></i> <span id="sideBrand">SUPER_POS</span></div>
+        <div class="brand">
+            <i class="fas fa-cube"></i>
+            <span id="brand-name">SweetShop</span>
+        </div>
         <nav>
-            <div class="nav-item active" onclick="switchPage('pos')"><i class="fas fa-cash-register"></i>نقطة البيع</div>
-            <div class="nav-item" onclick="switchPage('inventory')"><i class="fas fa-boxes"></i>المخزون والمنتجات</div>
-            <div class="nav-item" onclick="switchPage('credits')"><i class="fas fa-user-clock"></i>ديون الزبائن</div>
-            <div class="nav-item" onclick="switchPage('reports')"><i class="fas fa-chart-line"></i>التقارير المالية</div>
-            <div class="nav-item" onclick="switchPage('settings')"><i class="fas fa-tools"></i>الإعدادات</div>
+            <div class="nav-link active" onclick="Router.go('pos')"><i class="fas fa-cash-register"></i> نقطة البيع</div>
+            <div class="nav-link" onclick="Router.go('products')"><i class="fas fa-box-open"></i> المنتجات والمخزون</div>
+            <div class="nav-link" onclick="Router.go('customers')"><i class="fas fa-users"></i> الزبائن والديون</div>
+            <div class="nav-link" onclick="Router.go('users')" id="nav-users"><i class="fas fa-user-shield"></i> المستخدمين</div>
+            <div class="nav-link" onclick="Router.go('settings')" id="nav-settings"><i class="fas fa-cog"></i> الإعدادات</div>
+            <div class="nav-link" style="color: var(--danger); margin-top: auto;" onclick="Auth.logout()"><i class="fas fa-sign-out-alt"></i> خروج</div>
         </nav>
-        <div class="nav-item" style="margin-top: auto; color: var(--danger);" onclick="location.reload()"><i class="fas fa-sign-out-alt"></i>خروج</div>
     </aside>
 
-    <div class="content">
-        <header>
+    <div class="main-wrapper">
+        <header class="header">
+            <h3 id="page-title" style="margin: 0;">نقطة البيع</h3>
             <div style="display: flex; align-items: center; gap: 15px;">
-                <img id="mainLogo" src="" style="height: 40px; border-radius: 5px; display: none;">
-                <h3 id="topName" style="margin: 0;">نظام إدارة مبيعات الحلويات</h3>
+                <span id="clock" style="font-weight: bold; color: #64748b;"></span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <img id="header-logo" src="" style="height: 40px; border-radius: 4px; display: none;">
+                    <span id="shop-name-header">اسم المحل</span>
+                </div>
             </div>
-            <div id="digitalClock" style="font-weight: bold; color: var(--sidebar-bg);"></div>
         </header>
 
-        <section id="pos" class="page-sec active-sec">
-            <div class="pos-container">
-                <div style="flex: 1.5; background: white; border-radius: 12px; padding: 15px;">
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                        <input type="text" id="barcodeScan" placeholder="امسح الباركود هنا..." autofocus onchange="handleBarcode(this.value)">
-                    </div>
-                    <div id="posGrid" class="products-grid"></div>
+        <section id="pos" class="content-area active">
+            <div class="grid-split">
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <input type="text" id="search-bar" placeholder="بحث باسم المنتج أو الباركود..." onkeyup="POS.filterProducts()" autofocus>
+                    <div id="products-container" class="product-grid"></div>
                 </div>
-                <div style="flex: 1; background: white; border-radius: 12px; display: flex; flex-direction: column;">
-                    <div style="padding: 15px; background: var(--sidebar-bg); color: white; border-radius: 12px 12px 0 0;">الفاتورة الحالية</div>
-                    <div id="cartItems" style="flex: 1; padding: 10px; overflow-y: auto;"></div>
-                    <div style="padding: 15px; border-top: 2px dashed #eee;">
-                        <input type="number" id="promoDiscount" placeholder="تخفيض (قيمة)" oninput="calcTotal()">
-                        <div style="display: flex; justify-content: space-between; font-size: 1.5rem; font-weight: bold; margin: 10px 0;">
-                            <span>الإجمالي:</span>
-                            <span id="finalTotal">0.00</span>
+                <div class="card" style="display: flex; flex-direction: column; height: calc(100vh - 140px);">
+                    <h3 style="margin-top: 0; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">فاتورة الحالية</h3>
+                    <div id="cart-list" style="flex: 1; overflow-y: auto;"></div>
+                    
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>المجموع:</span> <span id="cart-total">0.00</span>
                         </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <button class="btn btn-success" onclick="processSale('cash')">دفع نقداً</button>
-                            <button class="btn btn-primary" onclick="processSale('credit')" style="background: var(--warning);">إضافة للديون</button>
+                        <input type="number" id="discount-input" placeholder="خصم (مبلغ)" oninput="POS.calcTotal()" style="margin-bottom: 5px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 1.4rem; font-weight: bold; color: var(--primary);">
+                            <span>الصافي:</span> <span id="cart-net">0.00</span>
                         </div>
+                        <hr>
+                        <button class="btn btn-success" style="width: 100%; margin-bottom: 5px;" onclick="POS.checkout('cash')"><i class="fas fa-money-bill"></i> دفع نقدي</button>
+                        <button class="btn btn-warning" style="width: 100%; color: #000;" onclick="POS.checkout('credit')"><i class="fas fa-user-clock"></i> تسجيل كدين (Crédit)</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="inventory" class="page-sec">
+        <section id="products" class="content-area">
             <div class="card">
-                <h3><i class="fas fa-plus-circle"></i> إضافة منتج جديد</h3>
-                <div class="grid-3">
-                    <input type="text" id="p_name" placeholder="اسم المنتج">
-                    <input type="text" id="p_barcode" placeholder="الباركود">
-                    <input type="number" id="p_price" placeholder="سعر البيع">
-                    <input type="number" id="p_stock" placeholder="الكمية الافتتاحية">
-                    <input type="date" id="p_expiry" title="تاريخ نهاية الصلاحية">
-                    <div style="border: 1px dashed #ccc; padding: 5px;">
-                        <label style="font-size: 0.8rem;">صورة المنتج:</label>
-                        <input type="file" id="p_img" accept="image/*" onchange="previewImg(this, 'preview')">
+                <h3>إضافة / تعديل منتج</h3>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                    <input type="text" id="p-name" placeholder="اسم المنتج">
+                    <input type="text" id="p-barcode" placeholder="الباركود">
+                    <input type="number" id="p-price" placeholder="سعر البيع">
+                    <input type="number" id="p-cost" placeholder="سعر الشراء (التكلفة)">
+                    <input type="number" id="p-stock" placeholder="الكمية">
+                    <input type="date" id="p-expiry" title="تاريخ الصلاحية">
+                    <div style="grid-column: span 2; display: flex; gap: 10px;">
+                        <input type="file" id="p-img-input" accept="image/*">
+                        <input type="hidden" id="p-img-base64">
                     </div>
                 </div>
-                <img id="preview" style="height: 60px; margin-top: 10px; display: none; border-radius: 5px;">
-                <button class="btn btn-success" style="margin-top: 15px;" onclick="saveProduct()">حفظ في المخزن</button>
+                <button class="btn btn-primary" onclick="Inventory.saveProduct()">حفظ المنتج</button>
             </div>
             <div class="card">
-                <h3>قائمة المخزون</h3>
-                <table id="stockTable">
-                    <thead>
-                        <tr><th>الصورة</th><th>المنتج</th><th>الباركود</th><th>الكمية</th><th>الصلاحية</th><th>السعر</th><th>إجراء</th></tr>
-                    </thead>
-                    <tbody id="stockList"></tbody>
+                <h3>المخزون الحالي</h3>
+                <table id="inventory-table">
+                    <thead><tr><th>صورة</th><th>الباركود</th><th>الاسم</th><th>الكمية</th><th>الصلاحية</th><th>السعر</th><th>تحكم</th></tr></thead>
+                    <tbody></tbody>
                 </table>
             </div>
         </section>
 
-        <section id="credits" class="page-sec">
+        <section id="customers" class="content-area">
             <div class="card">
-                <h3>سجل ديون الزبائن</h3>
+                <h3>إدارة الزبائن</h3>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="c-name" placeholder="اسم الزبون">
+                    <input type="text" id="c-phone" placeholder="رقم الهاتف">
+                    <button class="btn btn-primary" onclick="Customers.add()">إضافة زبون</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3>قائمة الديون</h3>
                 <table>
-                    <thead><tr><th>اسم الزبون</th><th>المبلغ</th><th>التاريخ</th><th>الحالة</th></tr></thead>
-                    <tbody id="creditList"></tbody>
+                    <thead><tr><th>الزبون</th><th>الهاتف</th><th>إجمالي الدين</th><th>آخر تحديث</th><th>إجراءات</th></tr></thead>
+                    <tbody id="customers-list"></tbody>
                 </table>
             </div>
         </section>
 
-        <section id="settings" class="page-sec">
-            <div class="card" style="max-width: 600px; margin: auto;">
-                <h3>إعدادات المتجر الأساسية</h3>
-                <label>اسم المحل (يظهر في الفاتورة):</label>
-                <input type="text" id="set_name" style="margin-bottom: 15px;">
-                <label>شعار المحل:</label>
-                <input type="file" id="set_logo_file" onchange="previewImg(this, 'logo_preview')">
-                <img id="logo_preview" style="height: 100px; margin: 15px 0; border: 1px solid #ddd; display: block;">
-                <button class="btn btn-primary" onclick="saveSettings()">حفظ الإعدادات بالكامل</button>
+        <section id="users" class="content-area">
+            <div class="card">
+                <h3>إدارة المستخدمين والصلاحيات</h3>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="u-user" placeholder="اسم المستخدم">
+                    <input type="text" id="u-pass" placeholder="كلمة المرور">
+                    <select id="u-role">
+                        <option value="cashier">بائع (Cashier)</option>
+                        <option value="admin">مدير (Admin)</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="Users.add()">إضافة</button>
+                </div>
+                <p style="font-size: 0.8rem; color: #666;">* المدير له كامل الصلاحيات. البائع لا يرى الإعدادات ولا المستخدمين.</p>
+                <table style="margin-top: 20px;">
+                    <thead><tr><th>اسم المستخدم</th><th>الدور (الصلاحية)</th><th>حذف</th></tr></thead>
+                    <tbody id="users-list-body"></tbody>
+                </table>
             </div>
         </section>
+
+        <section id="settings" class="content-area">
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <h3><i class="fas fa-sliders-h"></i> إعدادات المتجر</h3>
+                <label>اسم المحل:</label>
+                <input type="text" id="set-name">
+                
+                <label>شعار المحل:</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="file" id="set-logo-input" onchange="Settings.previewLogo()">
+                    <img id="set-logo-preview" style="height: 50px; display: none;">
+                </div>
+
+                <label>رقم الهاتف:</label>
+                <input type="text" id="set-phone">
+                
+                <label>العنوان:</label>
+                <input type="text" id="set-addr">
+
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex:1">
+                        <label>العملة:</label>
+                        <select id="set-curr"><option value="دج">دج (DZD)</option><option value="$">USD</option></select>
+                    </div>
+                    <div style="flex:1">
+                        <label>اللغة:</label>
+                        <select id="set-lang"><option value="ar">العربية</option><option value="fr">Français</option></select>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" style="width: 100%; margin-top: 15px;" onclick="Settings.save()">حفظ كافة التغييرات</button>
+            </div>
+        </section>
+
     </div>
 
     <script>
-        // قواعد البيانات المحلية
-        let products = JSON.parse(localStorage.getItem('pos_products')) || [];
-        let sales = JSON.parse(localStorage.getItem('pos_sales')) || [];
-        let credits = JSON.parse(localStorage.getItem('pos_credits')) || [];
-        let cart = [];
-
-        // نظام الدخول
-        function attemptLogin() {
-            const u = document.getElementById('loginUser').value;
-            const p = document.getElementById('loginPass').value;
-            if(u === 'admin' && p === '123') { // كلمة مرور افتراضية
-                document.getElementById('loginOverlay').style.display = 'none';
-                initApp();
-            } else { alert("بيانات خاطئة!"); }
-        }
-
-        // تحويل الصور إلى نص (Base64) للتخزين
-        function previewImg(input, targetId) {
-            const file = input.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById(targetId).src = e.target.result;
-                document.getElementById(targetId).style.display = 'block';
+        // === قاعدة البيانات المحلية والتهيئة ===
+        const DB = {
+            data: {
+                config: { name: "SweetShop POS", logo: "", phone: "", address: "", currency: "دج", lang: "ar" },
+                products: [],
+                users: [{id: 1, user: "admin", pass: "123", role: "admin"}],
+                customers: [], // {id, name, phone, balance, history:[]}
+                sales: []
+            },
+            init() {
+                const stored = localStorage.getItem('SweetShopData');
+                if (stored) this.data = JSON.parse(stored);
+                else this.save();
+                
+                // التأكد من وجود أدمن واحد على الأقل
+                if(this.data.users.length === 0) {
+                    this.data.users.push({id: 1, user: "admin", pass: "123", role: "admin"});
+                    this.save();
+                }
+            },
+            save() {
+                localStorage.setItem('SweetShopData', JSON.stringify(this.data));
             }
-            reader.readAsDataURL(file);
-        }
+        };
 
-        // حفظ الإعدادات والشعار
-        function saveSettings() {
-            const name = document.getElementById('set_name').value;
-            const logo = document.getElementById('logo_preview').src;
-            localStorage.setItem('shop_name', name);
-            localStorage.setItem('shop_logo', logo);
-            initApp();
-            alert("تم التحديث!");
-        }
-
-        function saveProduct() {
-            const p = {
-                id: Date.now(),
-                name: document.getElementById('p_name').value,
-                barcode: document.getElementById('p_barcode').value,
-                price: parseFloat(document.getElementById('p_price').value),
-                stock: parseInt(document.getElementById('p_stock').value),
-                expiry: document.getElementById('p_expiry').value,
-                img: document.getElementById('preview').src
-            };
-            products.push(p);
-            localStorage.setItem('pos_products', JSON.stringify(products));
-            updateInventoryUI();
-            alert("تم الإضافة!");
-        }
-
-        function updateInventoryUI() {
-            const list = document.getElementById('stockList');
-            list.innerHTML = '';
-            products.forEach(p => {
-                const isExpiring = new Date(p.expiry) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-                list.innerHTML += `
-                    <tr class="${isExpiring ? 'expiring-soon' : ''}">
-                        <td><img src="${p.img}" style="height:40px;"></td>
-                        <td>${p.name}</td>
-                        <td>${p.barcode}</td>
-                        <td>${p.stock}</td>
-                        <td>${p.expiry}</td>
-                        <td>${p.price} دج</td>
-                        <td><button onclick="deleteProduct(${p.id})">حذف</button></td>
-                    </tr>`;
-            });
-            renderPOSGrid();
-        }
-
-        function renderPOSGrid() {
-            const grid = document.getElementById('posGrid');
-            grid.innerHTML = '';
-            products.forEach(p => {
-                grid.innerHTML += `
-                    <div class="product-card" onclick="addToCart(${p.id})">
-                        <img src="${p.img}">
-                        <div style="font-weight:bold;">${p.name}</div>
-                        <div style="color:var(--danger);">${p.price} دج</div>
-                    </div>`;
-            });
-        }
-
-        function addToCart(id) {
-            const p = products.find(x => x.id === id);
-            if(p.stock <= 0) { alert("نفد المخزون!"); return; }
-            cart.push({...p});
-            calcTotal();
-        }
-
-        function calcTotal() {
-            let total = cart.reduce((sum, item) => sum + item.price, 0);
-            const disc = parseFloat(document.getElementById('promoDiscount').value) || 0;
-            document.getElementById('finalTotal').innerText = (total - disc).toFixed(2);
-            renderCart();
-        }
-
-        function renderCart() {
-            const cDiv = document.getElementById('cartItems');
-            cDiv.innerHTML = cart.map((item, idx) => `
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span>${item.name}</span>
-                    <span>${item.price} دج <i class="fas fa-times" onclick="removeFromCart(${idx})"></i></span>
-                </div>
-            `).join('');
-        }
-
-        function processSale(type) {
-            const total = document.getElementById('finalTotal').innerText;
-            if(type === 'credit') {
-                const customer = prompt("اسم الزبون للمديونية:");
-                if(customer) credits.push({name: customer, amount: total, date: new Date().toLocaleDateString()});
+        // === إدارة المصادقة (تسجيل الدخول) ===
+        const Auth = {
+            currentUser: null,
+            login() {
+                const u = document.getElementById('username').value;
+                const p = document.getElementById('password').value;
+                const user = DB.data.users.find(x => x.user === u && x.pass === p);
+                
+                if (user) {
+                    this.currentUser = user;
+                    document.getElementById('login-overlay').style.display = 'none';
+                    App.start();
+                } else {
+                    document.getElementById('login-msg').innerText = "اسم المستخدم أو كلمة المرور خطأ!";
+                }
+            },
+            logout() {
+                this.currentUser = null;
+                document.getElementById('login-overlay').style.display = 'flex';
+                document.getElementById('password').value = '';
+                document.getElementById('login-msg').innerText = "";
             }
-            // تحديث المخزون
-            cart.forEach(item => {
-                const p = products.find(x => x.id === item.id);
-                p.stock--;
-            });
-            localStorage.setItem('pos_products', JSON.stringify(products));
-            localStorage.setItem('pos_credits', JSON.stringify(credits));
-            cart = [];
-            calcTotal();
-            updateInventoryUI();
-            alert("تمت العملية بنجاح!");
-        }
+        };
 
-        function switchPage(id) {
-            document.querySelectorAll('.page-sec').forEach(s => s.classList.remove('active-sec'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(id).classList.add('active-sec');
-            event.currentTarget.classList.add('active');
-        }
-
-        function initApp() {
-            const name = localStorage.getItem('shop_name') || "لوازم الحلويات باتنة";
-            const logo = localStorage.getItem('shop_logo');
-            document.getElementById('sideBrand').innerText = name;
-            document.getElementById('topName').innerText = name;
-            document.getElementById('set_name').value = name;
-            if(logo) {
-                document.getElementById('mainLogo').src = logo;
-                document.getElementById('mainLogo').style.display = 'block';
-                document.getElementById('logo_preview').src = logo;
+        // === إدارة التنقل والعرض ===
+        const Router = {
+            go(pageId) {
+                // صلاحيات الوصول
+                if (Auth.currentUser.role !== 'admin' && (pageId === 'users' || pageId === 'settings')) {
+                    alert("ليس لديك صلاحية الدخول هنا!");
+                    return;
+                }
+                document.querySelectorAll('.content-area').forEach(el => el.classList.remove('active'));
+                document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+                
+                document.getElementById(pageId).classList.add('active');
+                event.currentTarget.classList.add('active'); // هذا السطر قد يحتاج لتعديل إذا استدعي من كود
+                
+                // تحديث البيانات عند فتح الصفحة
+                if(pageId === 'products') Inventory.render();
+                if(pageId === 'customers') Customers.render();
+                if(pageId === 'users') Users.render();
+                if(pageId === 'settings') Settings.load();
+                if(pageId === 'pos') POS.renderGrid();
             }
-            updateInventoryUI();
-        }
+        };
 
-        setInterval(() => { document.getElementById('digitalClock').innerText = new Date().toLocaleString('ar-DZ'); }, 1000);
+        // === المخزون والمنتجات ===
+        const Inventory = {
+            handleImage(input) {
+                const file = input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => document.getElementById('p-img-base64').value = e.target.result;
+                reader.readAsDataURL(file);
+            },
+            saveProduct() {
+                const name = document.getElementById('p-name').value;
+                const bar = document.getElementById('p-barcode').value;
+                const price = parseFloat(document.getElementById('p-price').value);
+                
+                if(!name || !price) { alert("يجب إدخال الاسم والسعر"); return; }
+                
+                const prod = {
+                    id: Date.now(),
+                    name: name,
+                    barcode: bar,
+                    price: price,
+                    cost: document.getElementById('p-cost').value,
+                    stock: parseInt(document.getElementById('p-stock').value) || 0,
+                    expiry: document.getElementById('p-expiry').value,
+                    img: document.getElementById('p-img-base64').value
+                };
+                
+                DB.data.products.push(prod);
+                DB.save();
+                this.render();
+                POS.renderGrid(); // تحديث نقطة البيع
+                alert("تم الحفظ");
+                this.clearForm();
+            },
+            render() {
+                const tbody = document.querySelector('#inventory-table tbody');
+                tbody.innerHTML = '';
+                DB.data.products.forEach(p => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${p.img ? `<img src="${p.img}" style="width:30px">` : ''}</td>
+                            <td>${p.barcode}</td>
+                            <td>${p.name}</td>
+                            <td>${p.stock}</td>
+                            <td>${p.expiry}</td>
+                            <td>${p.price}</td>
+                            <td><button class="btn btn-danger" onclick="Inventory.del(${p.id})">x</button></td>
+                        </tr>
+                    `;
+                });
+            },
+            del(id) {
+                if(confirm("هل أنت متأكد؟")) {
+                    DB.data.products = DB.data.products.filter(p => p.id !== id);
+                    DB.save();
+                    this.render();
+                    POS.renderGrid();
+                }
+            },
+            clearForm() {
+                document.querySelectorAll('#products input').forEach(i => i.value = '');
+            }
+        };
+
+        // === نقطة البيع (POS) ===
+        const POS = {
+            cart: [],
+            renderGrid() {
+                const container = document.getElementById('products-container');
+                container.innerHTML = '';
+                const search = document.getElementById('search-bar').value.toLowerCase();
+                
+                DB.data.products.forEach(p => {
+                    if(p.name.toLowerCase().includes(search) || p.barcode.includes(search)) {
+                        // التحقق من الصلاحية والمخزون
+                        const isExpired = p.expiry && new Date(p.expiry) < new Date();
+                        const isLow = p.stock <= 5;
+                        
+                        const el = document.createElement('div');
+                        el.className = `product-item ${isExpired ? 'expired' : ''} ${isLow ? 'low-stock' : ''}`;
+                        el.innerHTML = `
+                            <img src="${p.img || 'https://via.placeholder.com/100'}" class="product-img">
+                            <div style="padding: 10px;">
+                                <div style="font-weight:bold">${p.name}</div>
+                                <div style="color:var(--primary)">${p.price} ${DB.data.config.currency}</div>
+                                <div style="font-size:0.8rem; color:#666">المخزون: ${p.stock}</div>
+                            </div>
+                        `;
+                        el.onclick = () => {
+                            if(p.stock <= 0) alert("الكمية نفدت!");
+                            else if(isExpired) alert("تحذير: المنتج منتهي الصلاحية!");
+                            else POS.addToCart(p);
+                        }
+                        container.appendChild(el);
+                    }
+                });
+            },
+            filterProducts() { this.renderGrid(); },
+            addToCart(product) {
+                const exist = this.cart.find(x => x.id === product.id);
+                if(exist) exist.qty++;
+                else this.cart.push({...product, qty: 1});
+                this.renderCart();
+            },
+            renderCart() {
+                const list = document.getElementById('cart-list');
+                list.innerHTML = '';
+                this.cart.forEach((item, idx) => {
+                    list.innerHTML += `
+                        <div class="cart-item">
+                            <div>${item.name} <br><small>${item.price} x ${item.qty}</small></div>
+                            <div style="display:flex; align-items:center; gap:5px;">
+                                <span>${(item.price * item.qty).toFixed(2)}</span>
+                                <i class="fas fa-trash" style="color:red; cursor:pointer" onclick="POS.remItem(${idx})"></i>
+                            </div>
+                        </div>
+                    `;
+                });
+                this.calcTotal();
+            },
+            remItem(idx) {
+                this.cart.splice(idx, 1);
+                this.renderCart();
+            },
+            calcTotal() {
+                const total = this.cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+                const disc = parseFloat(document.getElementById('discount-input').value) || 0;
+                document.getElementById('cart-total').innerText = total.toFixed(2);
+                document.getElementById('cart-net').innerText = (total - disc).toFixed(2) + " " + DB.data.config.currency;
+            },
+            checkout(type) {
+                if(this.cart.length === 0) return;
+                const net = parseFloat(document.getElementById('cart-net').innerText);
+                
+                if(type === 'credit') {
+                    // اختيار الزبون
+                    if(DB.data.customers.length === 0) { alert("لا يوجد زبائن مسجلين للديون! أضف زبوناً أولاً."); return; }
+                    let custName = prompt("اكتب اسم الزبون المسجل:");
+                    let customer = DB.data.customers.find(c => c.name === custName);
+                    
+                    if(!customer) { alert("زبون غير موجود، الرجاء التسجيل في قائمة الزبائن أولاً."); return; }
+                    
+                    customer.balance += net;
+                    customer.history.push({date: new Date().toLocaleString(), amount: net, type: 'debt_add'});
+                }
+
+                // خصم المخزون
+                this.cart.forEach(cItem => {
+                    let p = DB.data.products.find(x => x.id === cItem.id);
+                    if(p) p.stock -= cItem.qty;
+                });
+
+                // حفظ العملية
+                DB.data.sales.push({
+                    date: new Date(),
+                    items: this.cart,
+                    total: net,
+                    type: type
+                });
+
+                DB.save();
+                this.cart = [];
+                this.renderCart();
+                this.renderGrid();
+                Inventory.render(); // لتحديث المخزون في الصفحة الأخرى
+                alert("تمت العملية بنجاح!");
+            }
+        };
+
+        // === الزبائن والديون ===
+        const Customers = {
+            add() {
+                const name = document.getElementById('c-name').value;
+                const phone = document.getElementById('c-phone').value;
+                if(name) {
+                    DB.data.customers.push({id: Date.now(), name, phone, balance: 0, history: []});
+                    DB.save();
+                    this.render();
+                    document.getElementById('c-name').value = '';
+                }
+            },
+            render() {
+                const tbody = document.getElementById('customers-list');
+                tbody.innerHTML = '';
+                DB.data.customers.forEach(c => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${c.name}</td>
+                            <td>${c.phone}</td>
+                            <td style="color:${c.balance > 0 ? 'red' : 'green'}; font-weight:bold">${c.balance.toFixed(2)}</td>
+                            <td>${c.history.length ? c.history[c.history.length-1].date : '-'}</td>
+                            <td>
+                                <button class="btn btn-success" onclick="Customers.pay(${c.id})">تسديد</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            },
+            pay(id) {
+                const c = DB.data.customers.find(x => x.id === id);
+                const amount = parseFloat(prompt(`المبلغ المستحق: ${c.balance}\nأدخل المبلغ المدفوع:`));
+                if(amount) {
+                    c.balance -= amount;
+                    c.history.push({date: new Date().toLocaleString(), amount: amount, type: 'payment'});
+                    DB.save();
+                    this.render();
+                }
+            }
+        };
+
+        // === المستخدمين ===
+        const Users = {
+            add() {
+                const u = document.getElementById('u-user').value;
+                const p = document.getElementById('u-pass').value;
+                const r = document.getElementById('u-role').value;
+                if(u && p) {
+                    DB.data.users.push({id: Date.now(), user: u, pass: p, role: r});
+                    DB.save();
+                    this.render();
+                    document.getElementById('u-user').value = '';
+                    document.getElementById('u-pass').value = '';
+                }
+            },
+            render() {
+                const tbody = document.getElementById('users-list-body');
+                tbody.innerHTML = '';
+                DB.data.users.forEach(u => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${u.user}</td>
+                            <td>${u.role === 'admin' ? '<span style="color:red">مدير</span>' : 'بائع'}</td>
+                            <td>${u.user !== 'admin' ? `<button onclick="Users.del(${u.id})">حذف</button>` : '-'}</td>
+                        </tr>
+                    `;
+                });
+            },
+            del(id) {
+                DB.data.users = DB.data.users.filter(u => u.id !== id);
+                DB.save();
+                this.render();
+            }
+        };
+
+        // === الإعدادات ===
+        const Settings = {
+            previewLogo() {
+                const file = document.getElementById('set-logo-input').files[0];
+                if(file){
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        document.getElementById('set-logo-preview').src = e.target.result;
+                        document.getElementById('set-logo-preview').style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+            load() {
+                const c = DB.data.config;
+                document.getElementById('set-name').value = c.name;
+                document.getElementById('set-phone').value = c.phone;
+                document.getElementById('set-addr').value = c.address;
+                document.getElementById('set-curr').value = c.currency;
+                document.getElementById('set-lang').value = c.lang;
+                if(c.logo) {
+                    document.getElementById('set-logo-preview').src = c.logo;
+                    document.getElementById('set-logo-preview').style.display = 'block';
+                }
+            },
+            save() {
+                const imgSrc = document.getElementById('set-logo-preview').src;
+                DB.data.config = {
+                    name: document.getElementById('set-name').value,
+                    phone: document.getElementById('set-phone').value,
+                    address: document.getElementById('set-addr').value,
+                    currency: document.getElementById('set-curr').value,
+                    lang: document.getElementById('set-lang').value,
+                    logo: imgSrc !== window.location.href ? imgSrc : DB.data.config.logo
+                };
+                DB.save();
+                App.applyConfig();
+                alert("تم حفظ الإعدادات بنجاح!");
+            }
+        };
+
+        // === تشغيل التطبيق ===
+        const App = {
+            start() {
+                this.applyConfig();
+                Router.go('pos');
+                
+                // تفعيل الاستماع للصور في المخزن
+                document.getElementById('p-img-input').addEventListener('change', function() { Inventory.handleImage(this); });
+                
+                // إخفاء تبويبات الأدمن إذا كان بائعاً
+                if(Auth.currentUser.role !== 'admin') {
+                    document.getElementById('nav-users').style.display = 'none';
+                    document.getElementById('nav-settings').style.display = 'none';
+                }
+            },
+            applyConfig() {
+                const c = DB.data.config;
+                document.title = c.name;
+                document.getElementById('brand-name').innerText = c.name;
+                document.getElementById('shop-name-header').innerText = c.name;
+                if(c.logo && c.logo.length > 100) {
+                     document.getElementById('header-logo').src = c.logo;
+                     document.getElementById('header-logo').style.display = 'block';
+                }
+            }
+        };
+
+        // التهيئة الأولية
+        DB.init();
+        setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString('ar-DZ'), 1000);
+
     </script>
 </body>
 </html>
