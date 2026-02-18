@@ -3,202 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">نظام SUPER_POS الاحترافي</title>
+    <title id="mainTitle">SUPER_POS | نظام الإدارة</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary-dark: #2c3e50; --accent-blue: #3498db; --success-green: #27ae60; --danger-red: #e74c3c; --light-bg: #f8f9fa; --white: #ffffff; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--light-bg); display: flex; height: 100vh; overflow: hidden; }
+        :root { --sidebar-color: #2c3e50; --active-blue: #3498db; --bg-light: #f4f7f6; --text-gray: #bdc3c7; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-light); overflow: hidden; }
         
-        /* القائمة الجانبية المرجعية */
-        .sidebar { width: 260px; background: var(--primary-dark); color: white; display: flex; flex-direction: column; box-shadow: 2px 0 10px rgba(0,0,0,0.1); z-index: 1000; }
-        .sidebar-brand { padding: 30px 20px; text-align: center; font-size: 1.6rem; font-weight: bold; border-bottom: 1px solid #3e5871; background: #243342; }
-        .nav-menu { flex: 1; padding-top: 15px; }
-        .nav-item { padding: 15px 25px; color: #bdc3c7; text-decoration: none; display: flex; align-items: center; cursor: pointer; transition: 0.2s; border-right: 4px solid transparent; }
-        .nav-item:hover, .nav-item.active { background: #3e5871; color: white; border-right-color: var(--accent-blue); }
+        /* القائمة الجانبية كما في صورتك المرفقة */
+        .sidebar { width: 260px; background: var(--sidebar-color); color: white; display: flex; flex-direction: column; transition: 0.3s; flex-shrink: 0; }
+        .sidebar-title { padding: 30px 20px; text-align: center; font-size: 1.6rem; font-weight: bold; background: #243342; letter-spacing: 1px; }
+        .nav-list { flex: 1; padding-top: 10px; }
+        .nav-item { padding: 15px 25px; color: var(--text-gray); display: flex; align-items: center; cursor: pointer; transition: 0.2s; border-right: 4px solid transparent; text-decoration: none; }
+        .nav-item:hover, .nav-item.active { background: #3e5871; color: white; border-right-color: var(--active-blue); }
         .nav-item i { margin-left: 15px; width: 25px; font-size: 1.2rem; }
 
-        /* منطقة المحتوى */
-        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .top-bar { background: var(--white); height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
-        .shop-brand { display: flex; align-items: center; gap: 12px; }
-        .shop-brand img { height: 45px; width: 45px; border-radius: 8px; object-fit: cover; }
+        /* منطقة المحتوى الرئيسي */
+        .main-content { flex: 1; display: flex; flex-direction: column; }
+        .top-nav { background: white; height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .shop-info { display: flex; align-items: center; gap: 15px; }
+        #shopLogo { height: 45px; width: 45px; border-radius: 8px; object-fit: cover; background: #eee; }
 
-        /* الأقسام */
-        .page-section { display: none; padding: 25px; height: calc(100vh - 70px); overflow-y: auto; }
-        .page-section.active { display: block; }
+        /* الأقسام المتغيرة */
+        .page-content { display: none; padding: 25px; height: calc(100vh - 70px); overflow-y: auto; }
+        .page-content.active { display: block; }
+
+        /* تصميم كروت الإعدادات والتقارير */
+        .settings-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); max-width: 900px; margin: 0 auto; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-control { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+        .form-control label { font-weight: bold; color: var(--sidebar-color); }
+        .form-control input, .form-control select { padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
+        .btn-save { grid-column: span 2; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; margin-top: 10px; }
 
         /* واجهة البيع POS */
         .pos-grid { display: grid; grid-template-columns: 1fr 380px; gap: 20px; height: 100%; }
-        .inventory-panel { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; flex-direction: column; }
-        .cart-panel { background: white; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 8px 25px rgba(0,0,0,0.05); }
-        
-        .search-wrapper { position: relative; margin-bottom: 20px; }
-        .search-wrapper input { width: 100%; padding: 15px 45px 15px 15px; border-radius: 10px; border: 1px solid #eee; background: #fdfdfd; font-size: 1rem; }
-        .search-wrapper i { position: absolute; right: 18px; top: 18px; color: #999; }
-
-        .items-display { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; overflow-y: auto; }
-        .item-card { border: 1px solid #f0f0f0; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: 0.3s; background: #fff; }
-        .item-card:hover { transform: translateY(-5px); border-color: var(--accent-blue); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .item-card .price-tag { color: var(--success-green); font-weight: bold; font-size: 1.1rem; display: block; margin-top: 5px; }
-
-        /* الإعدادات والتقارير */
-        .card-form { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); max-width: 900px; margin: auto; }
-        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
-        .input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .main-btn { width: 100%; padding: 15px; background: var(--success-green); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s; }
-        .main-btn:hover { background: #219150; }
-
-        /* سلة المشتريات */
-        .cart-title { padding: 20px; background: var(--primary-dark); color: white; border-radius: 12px 12px 0 0; text-align: center; }
-        .cart-body { flex: 1; padding: 15px; overflow-y: auto; }
-        .cart-total { padding: 20px; border-top: 2px dashed #eee; background: #fafafa; }
+        .products-section { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .cart-section { background: white; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        .cart-header { background: var(--sidebar-color); color: white; padding: 15px; border-radius: 12px 12px 0 0; text-align: center; }
+        .search-box { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 20px; font-size: 1rem; }
     </style>
 </head>
 <body>
 
-    <nav class="sidebar">
-        <div class="sidebar-brand" id="brandName">SUPER_POS</div>
-        <div class="nav-menu">
-            <div class="nav-item active" onclick="navigate('pos')"><i class="fas fa-shopping-basket"></i> نقطة البيع</div>
-            <div class="nav-item" onclick="navigate('products')"><i class="fas fa-layer-group"></i> المنتجات</div>
-            <div class="nav-item" onclick="navigate('reports')"><i class="fas fa-chart-pie"></i> التقارير</div>
-            <div class="nav-item" onclick="navigate('users')"><i class="fas fa-user-shield"></i> المستخدمين</div>
-            <div class="nav-item" onclick="navigate('settings')"><i class="fas fa-sliders-h"></i> الإعدادات</div>
-        </div>
-        <div class="nav-item" style="color: #ff7675; border-top: 1px solid #3e5871;"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</div>
-    </nav>
+    <aside class="sidebar">
+        <div class="sidebar-title" id="sideBrand">SUPER_POS</div>
+        <nav class="nav-list">
+            <div class="nav-item active" onclick="openTab('pos')"><i class="fas fa-shopping-basket"></i>نقطة البيع</div>
+            <div class="nav-item" onclick="openTab('products')"><i class="fas fa-boxes"></i>المنتجات</div>
+            <div class="nav-item" onclick="openTab('reports')"><i class="fas fa-chart-line"></i>التقارير</div>
+            <div class="nav-item" onclick="openTab('users')"><i class="fas fa-users-cog"></i>المستخدمين</div>
+            <div class="nav-item" onclick="openTab('settings')"><i class="fas fa-cogs"></i>الإعدادات</div>
+        </nav>
+        <div class="nav-item" style="color: #e74c3c; border-top: 1px solid #3e5871;"><i class="fas fa-power-off"></i>خروج</div>
+    </aside>
 
-    <div class="main-wrapper">
-        <header class="top-bar">
-            <div class="shop-brand">
-                <img id="logoPreview" src="https://via.placeholder.com/45" alt="Logo">
-                <h2 id="headerShopName" style="margin:0; color: var(--primary-dark);">اسم المحل</h2>
+    <div class="main-content">
+        <header class="top-nav">
+            <div class="shop-info">
+                <img id="shopLogoImg" src="" alt="Logo">
+                <h3 id="shopNameDisplay" style="margin:0">اسم المحل</h3>
             </div>
-            <div style="font-weight: 500; color: #666;" id="liveClock"></div>
+            <div id="liveTime" style="color: #666; font-weight: 500;"></div>
         </header>
 
-        <main>
-            <section id="pos-section" class="page-section active">
-                <div class="pos-grid">
-                    <div class="inventory-panel">
-                        <div class="search-wrapper">
-                            <i class="fas fa-barcode"></i>
-                            <input type="text" id="barcodeInput" placeholder="مسح الباركود أو البحث عن منتج..." autofocus>
+        <section id="pos-tab" class="page-content active">
+            <div class="pos-grid">
+                <div class="products-section">
+                    <input type="text" class="search-box" placeholder="مسح الباركود أو البحث عن منتج...">
+                    <div id="productGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px;">
                         </div>
-                        <div class="items-display" id="itemsDisplay"></div>
-                    </div>
-                    <div class="cart-panel">
-                        <div class="cart-title">فاتورة المبيعات</div>
-                        <div class="cart-body" id="cartBody"></div>
-                        <div class="cart-total">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                                <span>المجموع:</span> <span id="subTotal">0.00</span>
-                            </div>
-                            <div style="display:flex; justify-content:space-between; font-size:1.6rem; color:var(--danger-red); font-weight:bold;">
-                                <span>الصافي:</span> <span><span id="finalTotal">0.00</span> دج</span>
-                            </div>
-                            <button class="main-btn" style="margin-top:15px;" onclick="window.print()">دفع وطباعة الفاتورة</button>
+                </div>
+                <div class="cart-section">
+                    <div class="cart-header">سلة المشتريات</div>
+                    <div id="cartItems" style="flex:1; padding:15px; overflow-y:auto;"></div>
+                    <div style="padding:20px; border-top: 2px dashed #eee;">
+                        <div style="display:flex; justify-content:space-between; font-size:1.5rem; color:#e74c3c; font-weight:bold;">
+                            <span>الصافي:</span>
+                            <span><span id="totalAmount">0.00</span> دج</span>
                         </div>
+                        <button class="btn-save" style="margin-top:15px;" onclick="window.print()">دفع وطباعة</button>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <section id="settings-section" class="page-section">
-                <div class="card-form">
-                    <h3><i class="fas fa-cogs"></i> إعدادات المتجر العامة</h3>
-                    <hr><br>
-                    <div class="grid-inputs">
-                        <div class="input-group">
-                            <label>اسم المحل</label>
-                            <input type="text" id="setShopName" placeholder="لوازم الحلويات باتنة">
-                        </div>
-                        <div class="input-group">
-                            <label>رابط شعار المحل</label>
-                            <input type="text" id="setLogoUrl" placeholder="https://example.com/logo.png">
-                        </div>
-                        <div class="input-group">
-                            <label>رقم الهاتف</label>
-                            <input type="text" id="setPhone" placeholder="06XXXXXXXX">
-                        </div>
-                        <div class="input-group">
-                            <label>عنوان المحل</label>
-                            <input type="text" id="setAddress" placeholder="حي الممرات، باتنة">
-                        </div>
-                        <div class="input-group">
-                            <label>العملة الافتراضية</label>
-                            <select id="setCurrency">
-                                <option value="دج">دينار جزائري (دج)</option>
-                                <option value="$">دولار ($)</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>لغة النظام</label>
-                            <select id="setLang">
-                                <option value="ar">العربية</option>
-                                <option value="fr">الفرنسية</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button class="main-btn" onclick="applySettings()">حفظ التغييرات</button>
+        <section id="settings-tab" class="page-content">
+            <div class="settings-card">
+                <h3><i class="fas fa-sliders-h"></i> إعدادات المتجر</h3>
+                <hr><br>
+                <div class="input-grid">
+                    <div class="form-control"><label>اسم المحل</label><input type="text" id="set_name"></div>
+                    <div class="form-control"><label>رابط الشعار</label><input type="text" id="set_logo"></div>
+                    <div class="form-control"><label>رقم الهاتف</label><input type="text" id="set_phone"></div>
+                    <div class="form-control"><label>العنوان</label><input type="text" id="set_address"></div>
+                    <div class="form-control"><label>العملة</label><select id="set_curr"><option value="دج">دينار جزائري</option><option value="$">دولار</option></select></div>
+                    <div class="form-control"><label>اللغة</label><select id="set_lang"><option value="ar">العربية</option><option value="fr">الفرنسية</option></select></div>
+                    <button class="btn-save" onclick="updateConfig()">حفظ التعديلات</button>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <section id="reports-section" class="page-section">
-                <div class="card-form"><h3><i class="fas fa-chart-line"></i> تقارير المبيعات</h3><p>سيتم عرض إحصائيات الأرباح هنا قريباً...</p></div>
-            </section>
-            <section id="users-section" class="page-section">
-                <div class="card-form"><h3><i class="fas fa-users-cog"></i> إدارة المستخدمين</h3><p>يمكنك إضافة بائعين جدد من هنا في التحديث القادم...</p></div>
-            </section>
-            <section id="products-section" class="page-section">
-                <div class="card-form"><h3><i class="fas fa-box"></i> إدارة المخزون</h3><p>قائمة السلع المتاحة في قاعدة البيانات...</p></div>
-            </section>
-        </main>
+        <section id="reports-tab" class="page-content"><div class="settings-card"><h3>التقارير</h3><p>عرض مبيعات محلك بباتنة هنا...</p></div></section>
+        <section id="users-tab" class="page-content"><div class="settings-card"><h3>المستخدمين</h3><p>إدارة صلاحيات البائعين...</p></div></section>
+        <section id="products-tab" class="page-content"><div class="settings-card"><h3>إدارة السلع</h3><p>إضافة وتعديل المنتجات...</p></div></section>
     </div>
 
     <script>
-        // نظام التنقل الاحترافي
-        function navigate(id) {
-            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(id + '-section').classList.add('active');
+        // نظام التبديل بين الأقسام بدقة
+        function openTab(tabId) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(tabId + '-tab').classList.add('active');
             event.currentTarget.classList.add('active');
         }
 
-        // تطبيق الإعدادات وحفظها
-        function applySettings() {
-            const config = {
-                name: document.getElementById('setShopName').value,
-                logo: document.getElementById('setLogoUrl').value,
-                phone: document.getElementById('setPhone').value,
-                address: document.getElementById('setAddress').value,
-                curr: document.getElementById('setCurrency').value
+        // حفظ وتحديث الإعدادات
+        function updateConfig() {
+            const data = {
+                n: document.getElementById('set_name').value,
+                l: document.getElementById('set_logo').value,
+                p: document.getElementById('set_phone').value,
+                a: document.getElementById('set_address').value,
+                c: document.getElementById('set_curr').value
             };
-            localStorage.setItem('pos_config', JSON.stringify(config));
-            updateUI();
-            alert("تم تحديث بيانات المحل بنجاح!");
+            localStorage.setItem('config', JSON.stringify(data));
+            loadConfig();
+            alert("تم الحفظ بنجاح!");
         }
 
-        function updateUI() {
-            const saved = JSON.parse(localStorage.getItem('pos_config'));
+        function loadConfig() {
+            const saved = JSON.parse(localStorage.getItem('config'));
             if(saved) {
-                document.getElementById('brandName').innerText = saved.name || "SUPER_POS";
-                document.getElementById('headerShopName').innerText = saved.name || "اسم المحل";
-                document.getElementById('logoPreview').src = saved.logo || "https://via.placeholder.com/45";
-                document.getElementById('setShopName').value = saved.name;
-                document.getElementById('setLogoUrl').value = saved.logo;
-                document.getElementById('setPhone').value = saved.phone;
-                document.getElementById('setAddress').value = saved.address;
+                document.getElementById('shopNameDisplay').innerText = saved.n;
+                document.getElementById('sideBrand').innerText = saved.n;
+                document.getElementById('shopLogoImg').src = saved.l || 'https://via.placeholder.com/45';
+                document.getElementById('set_name').value = saved.n;
+                document.getElementById('set_logo').value = saved.l;
+                document.getElementById('set_phone').value = saved.p;
+                document.getElementById('set_address').value = saved.a;
             }
         }
 
-        // ساعة النظام
-        setInterval(() => {
-            document.getElementById('liveClock').innerText = new Date().toLocaleString('ar-DZ');
-        }, 1000);
-
-        window.onload = updateUI;
+        setInterval(() => { document.getElementById('liveTime').innerText = new Date().toLocaleString('ar-DZ'); }, 1000);
+        window.onload = loadConfig;
     </script>
 </body>
 </html>
