@@ -1,504 +1,73 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" id="main-html">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SweetShop POS | Pro Edition 2026</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-dark: #1e293b; --bg-light: #f1f5f9; --primary: #3b82f6;
-            --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
-        }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--bg-light); display: flex; height: 100vh; overflow: hidden; }
-        
-        /* شاشة تسجيل الدخول الاحترافية */
-        #login-screen { position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: white; padding: 40px; border-radius: 16px; width: 360px; text-align: center; box-shadow: 0 20px 25px rgba(0,0,0,0.2); }
-        .login-card input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
-        
-        /* Sidebar */
-        .sidebar { width: 260px; background: var(--bg-dark); color: white; display: flex; flex-direction: column; flex-shrink: 0; }
-        .brand { padding: 25px; font-size: 1.5rem; font-weight: bold; border-bottom: 1px solid #334155; text-align: center; }
-        .nav-item { padding: 15px 20px; cursor: pointer; display: flex; align-items: center; gap: 12px; color: #cbd5e1; transition: 0.2s; }
-        .nav-item:hover, .nav-item.active { background: #334155; color: white; border-right: 4px solid var(--primary); }
-        
-        /* Content Area */
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        header { height: 65px; background: white; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .page { display: none; padding: 25px; height: 100%; overflow-y: auto; }
-        .active-page { display: block; }
-
-        /* Tables & Cards */
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
-        th, td { padding: 14px; text-align: right; border-bottom: 1px solid #e2e8f0; }
-        th { background: #f8fafc; color: #64748b; font-weight: 600; }
-        
-        /* POS Grid */
-        .pos-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; height: calc(100vh - 150px); }
-        .items-area { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; align-content: start; overflow-y: auto; }
-        .prod-card { background: white; border-radius: 10px; border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s; text-align: center; }
-        .prod-card:hover { border-color: var(--primary); transform: translateY(-3px); }
-        .prod-card img { width: 100%; height: 110px; object-fit: cover; border-radius: 10px 10px 0 0; }
-        
-        /* Buttons */
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-success { background: var(--success); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
-        
-        /* Reports Widgets */
-        .report-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
-        .widget { padding: 25px; border-radius: 15px; color: white; text-align: center; }
-    </style>
+    <title>SweetShop Pro - نظام تسيير المحل</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div id="login-screen">
-        <div class="login-card">
-            <h2 id="login-brand">SweetShop POS</h2>
-            <div style="margin-bottom: 20px;">
-                <input type="text" id="user-in" placeholder="Nom">
-                <input type="password" id="pass-in" placeholder="Mot de passe">
-            </div>
-            <button class="btn btn-primary" style="width: 100%;" onclick="App.login()">تسجيل الدخول</button>
-            <p id="login-err" style="color: var(--danger); margin-top: 10px; display: none;">خطأ في البيانات!</p>
-        </div>
-    </div>
-
-    <aside class="sidebar">
-        <div class="brand" id="side-name">SweetShop</div>
-        <nav style="flex: 1;">
-            <div class="nav-item active" onclick="App.route('pos')"><i class="fas fa-cash-register"></i> نقطة البيع</div>
-            <div class="nav-item" onclick="App.route('inventory')"><i class="fas fa-boxes"></i> المخزون</div>
-            <div class="nav-item" onclick="App.route('customers')"><i class="fas fa-users"></i> الزبائن والديون</div>
-            <div class="nav-item" id="nav-reports" onclick="App.route('reports')"><i class="fas fa-chart-line"></i> التقارير المالية</div>
-            <div class="nav-item" id="nav-users" onclick="App.route('users')"><i class="fas fa-user-shield"></i> المستخدمين</div>
-            <div class="nav-item" onclick="App.route('settings')"><i class="fas fa-cog"></i> الإعدادات</div>
+    <div class="app-wrapper">
+        <nav class="side-nav">
+            <div class="logo-area" id="brand-logo">SweetShop</div>
+            <ul>
+                <li onclick="showSection('pos')">🛒 <span class="nav-text">نقطة البيع</span></li>
+                <li onclick="showSection('stock')">📦 <span class="nav-text">المخزون</span></li>
+                <li onclick="showSection('clients')">👥 <span class="nav-text">الزبائن والديون</span></li>
+                <li onclick="showSection('suppliers')">🚛 <span class="nav-text">الموردين</span></li>
+                <li onclick="showSection('reports')">📊 <span class="nav-text">التقارير المالية</span></li>
+                <li onclick="showSection('users')">👮 <span class="nav-text">المستخدمين</span></li>
+                <li onclick="showSection('settings')">⚙️ <span class="nav-text">الإعدادات</span></li>
+            </ul>
         </nav>
-        <div class="nav-item" style="color: var(--danger); border-top: 1px solid #334155;" onclick="location.reload()">
-            <i class="fas fa-sign-out-alt"></i> خروج
-        </div>
-    </aside>
 
-    <div class="main-content">
-        <header>
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <img id="header-logo" src="" style="height: 45px; display: none; border-radius: 5px;">
-                <h3 id="header-title" style="margin: 0;">نظام الإدارة</h3>
-            </div>
-            <div id="clock" style="font-weight: bold; color: var(--bg-dark);"></div>
-        </header>
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="user-status">المستخدم: <strong id="active-user">admin</strong></div>
+                <div class="daily-status">مبيعات اليوم: <span id="day-total">0.00</span> دج</div>
+                <div class="clock" id="clock">18/02/2026 - 10:30</div>
+            </header>
 
-        <section id="pos-page" class="page active-page">
-            <div class="pos-grid">
-                <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <input type="text" id="pos-search" placeholder="ابحث باسم المنتج أو امسح الباركود..." oninput="POS.renderGrid()">
-                    <div id="items-container" class="items-area"></div>
-                </div>
-                <div class="card" style="display: flex; flex-direction: column;">
-                    <h3>الفاتورة</h3>
-                    <div id="cart-items" style="flex: 1; overflow-y: auto; border-bottom: 1px dashed #ddd;"></div>
-                    <div style="padding-top: 15px;">
-                        <div style="display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: bold; margin-bottom: 15px;">
-                            <span>الإجمالي:</span> <span id="cart-total">0.00 دج</span>
+            <section id="pos-section" class="app-section active">
+                <div class="pos-grid">
+                    <div class="products-panel">
+                        <input type="text" id="pos-search" placeholder="بحث عن منتج..." oninput="autoAlign(this)">
+                        <div id="product-list" class="grid-display"></div>
+                    </div>
+                    <div class="cart-panel">
+                        <h3>الفاتورة الحالية <small id="order-num">#001</small></h3>
+                        <div class="cart-items-container" id="cart-items"></div>
+                        <div class="cart-summary">
+                            <hr class="dashed-line">
+                            <div class="total-row">المجموع: <span id="cart-total">0</span> دج</div>
+                            <button class="btn-confirm" onclick="checkout()">تأكيد وطباعة الفاتورة</button>
                         </div>
-                        <button class="btn btn-success" style="width: 100%; margin-bottom: 10px;" onclick="POS.checkout('cash')">دفع نقداً</button>
-                        <button class="btn btn-primary" style="width: 100%; background: var(--warning);" onclick="POS.checkout('credit')">تسجيل كدين</button>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <section id="inventory-page" class="page">
-            <div class="card">
-                <h3><i class="fas fa-plus-circle"></i> إضافة منتج جديد</h3>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                    <input type="text" id="p-name" placeholder="اسم المنتج">
-                    <input type="text" id="p-bar" placeholder="الباركود">
-                    <input type="number" id="p-buy" placeholder="سعر الشراء (التكلفة)">
-                    <input type="number" id="p-sell" placeholder="سعر البيع">
-                    <input type="number" id="p-stock" placeholder="الكمية المتوفرة">
-                    <input type="date" id="p-exp" title="تاريخ الصلاحية">
-                    <input type="file" id="p-img" accept="image/*" onchange="UI.previewImg(this, 'p-pre')">
-                    <img id="p-pre" style="height: 50px; display: none;">
+            </section>
+            
+            <section id="settings-section" class="app-section">
+                <h2>إعدادات النظام</h2>
+                <div class="settings-grid">
+                    <div class="setting-card">
+                        <h3>بيانات المحل</h3>
+                        <input type="text" id="shop-name" placeholder="اسم المحل">
+                        <input type="text" id="shop-phone" placeholder="رقم الهاتف">
+                        <textarea id="shop-footer" placeholder="الرسالة الختامية للفاتورة"></textarea>
+                    </div>
+                    <div class="setting-card">
+                        <h3>التقنية والطباعة</h3>
+                        <select id="lang-select" onchange="changeLanguage()">
+                            <option value="ar">العربية (AR)</option>
+                            <option value="fr">الفرنسية (FR)</option>
+                        </select>
+                        <select id="paper-size">
+                            <option value="80">80 مم</option>
+                            <option value="58">58 مم</option>
+                        </select>
+                    </div>
                 </div>
-                <button class="btn btn-primary" style="margin-top: 15px;" onclick="Inventory.save()">حفظ المنتج</button>
-            </div>
-            <div class="card">
-                <h3>قائمة السلع</h3>
-                <table id="stock-table">
-                    <thead><tr><th>الصورة</th><th>المنتج</th><th>الكمية</th><th>الصلاحية</th><th>السعر</th><th>إجراء</th></tr></thead>
-                    <tbody id="stock-list"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="customers-page" class="page">
-            <div class="card">
-                <h3>إدارة الديون (Les Crédits)</h3>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="c-name" placeholder="اسم الزبون">
-                    <input type="text" id="c-phone" placeholder="رقم الهاتف">
-                    <button class="btn btn-primary" onclick="Customers.add()">إضافة زبون جديد</button>
-                </div>
-            </div>
-            <div class="card">
-                <table>
-                    <thead><tr><th>الزبون</th><th>إجمالي الدين</th><th>آخر عملية</th><th>إجراءات</th></tr></thead>
-                    <tbody id="customers-list"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="reports-page" class="page">
-            <div class="report-grid">
-                <div class="widget" style="background: var(--primary);">
-                    <h4>مداخيل اليوم</h4>
-                    <h2 id="rep-daily">0.00 دج</h2>
-                </div>
-                <div class="widget" style="background: var(--success);">
-                    <h4>أرباح الشهر الصافية</h4>
-                    <h2 id="rep-profit">0.00 دج</h2>
-                </div>
-                <div class="widget" style="background: var(--danger);">
-                    <h4>ديون لم تُحصل بعد</h4>
-                    <h2 id="rep-debt">0.00 دج</h2>
-                </div>
-            </div>
-            <div class="card">
-                <h3>سجل العمليات الأخير</h3>
-                <table id="sales-history-table">
-                    <thead><tr><th>التاريخ</th><th>النوع</th><th>المبلغ</th><th>التفاصيل</th></tr></thead>
-                    <tbody id="history-list"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="users-page" class="page">
-            <div class="card">
-                <h3>إضافة بائع جديد</h3>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="u-name" placeholder="Nom">
-                    <input type="password" id="u-pass" placeholder="Mot de passe">
-                    <select id="u-role"><option value="cashier">بائع</option><option value="admin">مدير</option></select>
-                    <button class="btn btn-primary" onclick="Users.add()">حفظ</button>
-                </div>
-                <table style="margin-top: 20px;">
-                    <thead><tr><th>الاسم</th><th>الصلاحية</th><th>حذف</th></tr></thead>
-                    <tbody id="users-list"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <section id="settings-page" class="page">
-            <div class="card" style="max-width: 600px;">
-                <h3>إعدادات المتجر والمدير</h3>
-                <label>اسم المحل:</label>
-                <input type="text" id="s-name">
-                <label>رقم الهاتف:</label>
-                <input type="text" id="s-phone">
-                <label>العنوان:</label>
-                <input type="text" id="s-addr">
-                <label>الشعار:</label>
-                <input type="file" onchange="UI.previewImg(this, 's-logo-pre')">
-                <img id="s-logo-pre" style="height: 60px; margin: 10px 0;">
-                
-                <hr>
-                <h4>تغيير بيانات الدخول للمدير</h4>
-                <input type="text" id="new-admin-name" placeholder="اسم المدير الجديد">
-                <input type="password" id="new-admin-pass" placeholder="كلمة المرور الجديدة">
-                
-                <button class="btn btn-success" style="width: 100%; margin-top: 15px;" onclick="Settings.save()">حفظ التعديلات بالكامل</button>
-            </div>
-        </section>
+            </section>
+        </main>
     </div>
-
-    <script>
-        // === قاعدة البيانات والتهيئة ===
-        const DB = {
-            data: {
-                conf: { name: "SweetShop POS", logo: "", phone: "", addr: "" },
-                prods: [],
-                users: [{user: "admin", pass: "123", role: "admin"}],
-                custs: [],
-                sales: []
-            },
-            init() {
-                const stored = localStorage.getItem('SweetShop_DB');
-                if(stored) this.data = JSON.parse(stored);
-                this.save();
-                UI.applyConf();
-            },
-            save() { localStorage.setItem('SweetShop_DB', JSON.stringify(this.data)); }
-        };
-
-        // === إدارة التطبيق والراوتر ===
-        const App = {
-            currentUser: null,
-            login() {
-                const u = document.getElementById('user-in').value;
-                const p = document.getElementById('pass-in').value;
-                const found = DB.data.users.find(x => x.user === u && x.pass === p);
-                if(found) {
-                    this.currentUser = found;
-                    document.getElementById('login-screen').style.display = 'none';
-                    if(found.role !== 'admin') {
-                        document.getElementById('nav-reports').style.display = 'none';
-                        document.getElementById('nav-users').style.display = 'none';
-                    }
-                    this.route('pos');
-                } else {
-                    document.getElementById('login-err').style.display = 'block';
-                }
-            },
-            route(pageId) {
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                document.getElementById(pageId + '-page').classList.add('active-page');
-                event.currentTarget.classList.add('active');
-                
-                // تحديث بيانات الصفحة عند الفتح
-                if(pageId === 'inventory') Inventory.render();
-                if(pageId === 'customers') Customers.render();
-                if(pageId === 'pos') POS.renderGrid();
-                if(pageId === 'reports') Reports.render();
-                if(pageId === 'users') Users.render();
-                if(pageId === 'settings') Settings.load();
-            }
-        };
-
-        // === نظام المخزون ===
-        const Inventory = {
-            save() {
-                const p = {
-                    id: Date.now(),
-                    name: document.getElementById('p-name').value,
-                    bar: document.getElementById('p-bar').value,
-                    buy: parseFloat(document.getElementById('p-buy').value) || 0,
-                    sell: parseFloat(document.getElementById('p-sell').value) || 0,
-                    stock: parseInt(document.getElementById('p-stock').value) || 0,
-                    exp: document.getElementById('p-exp').value,
-                    img: document.getElementById('p-pre').src
-                };
-                DB.data.prods.push(p);
-                DB.save();
-                this.render();
-                alert("تم الحفظ");
-            },
-            render() {
-                const list = document.getElementById('stock-list');
-                list.innerHTML = DB.data.prods.map(p => `
-                    <tr>
-                        <td><img src="${p.img}" style="width:40px; border-radius:4px;"></td>
-                        <td>${p.name}</td>
-                        <td>${p.stock}</td>
-                        <td style="color:${new Date(p.exp) < new Date() ? 'red' : 'black'}">${p.exp}</td>
-                        <td>${p.sell} دج</td>
-                        <td><button class="btn btn-danger" onclick="Inventory.del(${p.id})">x</button></td>
-                    </tr>
-                `).join('');
-            },
-            del(id) {
-                DB.data.prods = DB.data.prods.filter(x => x.id !== id);
-                DB.save(); this.render();
-            }
-        };
-
-        // === نقطة البيع ===
-        const POS = {
-            cart: [],
-            renderGrid() {
-                const search = document.getElementById('pos-search').value.toLowerCase();
-                const grid = document.getElementById('items-container');
-                grid.innerHTML = DB.data.prods.filter(p => p.name.toLowerCase().includes(search) || p.bar.includes(search)).map(p => `
-                    <div class="prod-card" onclick="POS.addToCart(${p.id})">
-                        <img src="${p.img}">
-                        <div style="padding:10px;"><b>${p.name}</b><br><span style="color:var(--primary)">${p.sell} دج</span></div>
-                    </div>
-                `).join('');
-            },
-            addToCart(id) {
-                const p = DB.data.prods.find(x => x.id === id);
-                if(p.stock <= 0) return alert("نفد المخزون!");
-                this.cart.push({...p});
-                this.renderCart();
-            },
-            renderCart() {
-                const list = document.getElementById('cart-items');
-                let total = 0;
-                list.innerHTML = this.cart.map((item, idx) => {
-                    total += item.sell;
-                    return `<div style="display:flex; justify-content:space-between; padding:8px 0;">
-                        <span>${item.name}</span> <span>${item.sell} دج <i class="fas fa-trash" style="color:red; cursor:pointer" onclick="POS.rem(${idx})"></i></span>
-                    </div>`;
-                }).join('');
-                document.getElementById('cart-total').innerText = total.toFixed(2) + " دج";
-            },
-            rem(idx) { this.cart.splice(idx,1); this.renderCart(); },
-            checkout(type) {
-                if(!this.cart.length) return;
-                const total = parseFloat(document.getElementById('cart-total').innerText);
-                let customerName = "Cash";
-                
-                if(type === 'credit') {
-                    customerName = prompt("أدخل اسم الزبون المسجل:");
-                    const c = DB.data.custs.find(x => x.name === customerName);
-                    if(!c) return alert("الزبون غير موجود!");
-                    c.debt += total;
-                }
-
-                // حساب الأرباح (البيع - التكلفة)
-                const profit = this.cart.reduce((sum, item) => sum + (item.sell - item.buy), 0);
-
-                DB.data.sales.push({
-                    date: new Date().toISOString().split('T')[0],
-                    total: total,
-                    profit: profit,
-                    type: type,
-                    cust: customerName
-                });
-
-                // تحديث المخزون
-                this.cart.forEach(item => {
-                    const p = DB.data.prods.find(x => x.id === item.id);
-                    if(p) p.stock--;
-                });
-
-                DB.save();
-                this.cart = []; this.renderCart(); this.renderGrid();
-                alert("تمت العملية!");
-            }
-        };
-
-        // === الزبائن والديون ===
-        const Customers = {
-            add() {
-                const name = document.getElementById('c-name').value;
-                const phone = document.getElementById('c-phone').value;
-                if(name) {
-                    DB.data.custs.push({id: Date.now(), name, phone, debt: 0});
-                    DB.save(); this.render();
-                }
-            },
-            render() {
-                document.getElementById('customers-list').innerHTML = DB.data.custs.map(c => `
-                    <tr>
-                        <td>${c.name}</td>
-                        <td style="color:red; font-weight:bold;">${c.debt} دج</td>
-                        <td>${c.phone}</td>
-                        <td>
-                            <button class="btn btn-success" onclick="Customers.pay(${c.id})">تسديد</button>
-                            <button class="btn btn-primary" style="background:var(--warning)" onclick="Customers.addDebt(${c.id})">إضافة دين</button>
-                        </td>
-                    </tr>
-                `).join('');
-            },
-            pay(id) {
-                const amount = parseFloat(prompt("أدخل مبلغ التسديد (سيدخل في المداخيل):"));
-                const c = DB.data.custs.find(x => x.id === id);
-                if(amount > 0) {
-                    c.debt -= amount;
-                    // إضافة المبلغ للمداخيل اليومية كعملية دفع دين
-                    DB.data.sales.push({date: new Date().toISOString().split('T')[0], total: amount, profit: 0, type: 'Debt Payment', cust: c.name});
-                    DB.save(); this.render();
-                }
-            },
-            addDebt(id) {
-                const amount = parseFloat(prompt("أدخل مبلغ الدين الإضافي:"));
-                const c = DB.data.custs.find(x => x.id === id);
-                if(amount > 0) { c.debt += amount; DB.save(); this.render(); }
-            }
-        };
-
-        // === التقارير المالية ===
-        const Reports = {
-            render() {
-                const today = new Date().toISOString().split('T')[0];
-                const salesToday = DB.data.sales.filter(s => s.date === today);
-                const dailyInc = salesToday.reduce((sum, s) => sum + s.total, 0);
-                const monthlyProf = DB.data.sales.reduce((sum, s) => sum + s.profit, 0);
-                const totalDebts = DB.data.custs.reduce((sum, c) => sum + c.debt, 0);
-
-                document.getElementById('rep-daily').innerText = dailyInc.toFixed(2) + " دج";
-                document.getElementById('rep-profit').innerText = monthlyProf.toFixed(2) + " دج";
-                document.getElementById('rep-debt').innerText = totalDebts.toFixed(2) + " دج";
-
-                document.getElementById('history-list').innerHTML = DB.data.sales.slice(-10).reverse().map(s => `
-                    <tr><td>${s.date}</td><td>${s.type}</td><td>${s.total} دج</td><td>${s.cust}</td></tr>
-                `).join('');
-            }
-        };
-
-        // === المستخدمين والإعدادات ===
-        const Users = {
-            add() {
-                const user = document.getElementById('u-name').value;
-                const pass = document.getElementById('u-pass').value;
-                const role = document.getElementById('u-role').value;
-                if(user && pass) {
-                    DB.data.users.push({user, pass, role});
-                    DB.save(); this.render();
-                }
-            },
-            render() {
-                document.getElementById('users-list').innerHTML = DB.data.users.map((u, i) => `
-                    <tr><td>${u.user}</td><td>${u.role}</td><td><button onclick="Users.del(${i})">x</button></td></tr>
-                `).join('');
-            },
-            del(i) { if(DB.data.users[i].user !== 'admin') { DB.data.users.splice(i,1); DB.save(); this.render(); } }
-        };
-
-        const Settings = {
-            load() {
-                const c = DB.data.conf;
-                document.getElementById('s-name').value = c.name;
-                document.getElementById('s-phone').value = c.phone;
-                document.getElementById('s-addr').value = c.addr;
-                document.getElementById('s-logo-pre').src = c.logo;
-            },
-            save() {
-                DB.data.conf = {
-                    name: document.getElementById('s-name').value,
-                    phone: document.getElementById('s-phone').value,
-                    addr: document.getElementById('s-addr').value,
-                    logo: document.getElementById('s-logo-pre').src
-                };
-                // تغيير بيانات المدير
-                const newAdm = document.getElementById('new-admin-name').value;
-                const newPass = document.getElementById('new-admin-pass').value;
-                if(newAdm && newPass) {
-                    const adm = DB.data.users.find(x => x.role === 'admin');
-                    adm.user = newAdm; adm.pass = newPass;
-                }
-                DB.save(); UI.applyConf(); alert("تم حفظ الإعدادات بنجاح!");
-            }
-        };
-
-        const UI = {
-            applyConf() {
-                const c = DB.data.conf;
-                document.getElementById('side-name').innerText = c.name;
-                document.getElementById('header-title').innerText = c.name;
-                if(c.logo.length > 100) {
-                    document.getElementById('header-logo').src = c.logo;
-                    document.getElementById('header-logo').style.display = 'block';
-                }
-            },
-            previewImg(input, targetId) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById(targetId).src = e.target.result;
-                    document.getElementById(targetId).style.display = 'block';
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        };
-
-        // التشغيل الأولي
-        DB.init();
-        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleString('ar-DZ'); }, 1000);
-    </script>
 </body>
 </html>
